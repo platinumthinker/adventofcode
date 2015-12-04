@@ -13,7 +13,8 @@ input() ->
         Int <- binary:split(Data, [<<$x>>, <<"\n">>], [global]) ].
 
 resolve([A, B, C|T], Area) ->
-    resolve(T, Area + area(A * B, B * C, C * A));
+    resolve(T, Area + area([A, B, C]));
 resolve(_, Area) -> Area.
 
-area(A, B, C) -> 2 * ( A + B + C ) + min(min(A, B), C).
+area(L) -> A = lists:max(L), area(A, L -- [A]).
+area(A, [B, C]) -> B * 2 + C * 2 + A * B * C.
