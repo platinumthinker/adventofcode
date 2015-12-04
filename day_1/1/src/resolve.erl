@@ -1,14 +1,16 @@
 -module(resolve).
-
 -export([main/1]).
+-define(OUT(F,A), io:format(F ++ "\n",A)).
 
--define(OUT(Format, Args), io:format(Format ++ "\n", Args)).
--define(OUT(Format), ?OUT(Format, [])).
+main(_Args) ->
+    Res = lists:foldl(
+      fun($(,  Acc) -> Acc - 1;
+         ($),  Acc) -> Acc + 1;
+         ($\n, Acc) -> Acc;
+         (Var,  Acc) -> ?OUT("Unexpected: |~p|, Acc ~p", [Var, Acc]), Acc
+      end, 0, input()),
+    ?OUT("Out: ~p", [Res]).
 
-main(Args) ->
-    ?OUT("Start with ~p", [Args]),
-    res().
-
-res() ->
-    ?OUT("Hi!"),
-    ok.
+input() ->
+    {ok, Data} = file:read_file("../input.txt"),
+    binary_to_list(Data).

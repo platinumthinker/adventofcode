@@ -2,3 +2,5 @@
 *.app
 resolve
 .rebar
+input.txt
+output.txt
