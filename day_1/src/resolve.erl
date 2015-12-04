@@ -12,5 +12,5 @@ main(_Args) ->
     ?OUT("Out: ~p", [Res]).
 
 input() ->
-    {ok, Data} = file:read_file("../input.txt"),
+    {ok, Data} = file:read_file("input.txt"),
     binary_to_list(Data).
