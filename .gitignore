@@ -4,3 +4,4 @@ resolve
 .rebar
 input.txt
 output.txt
+.eunit
