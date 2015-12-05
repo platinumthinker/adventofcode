@@ -5,6 +5,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -define(OUT(F,A), io:format(F ++ "\n",A)).
+-define(ZERRO, 6).
 
 main(_Args) ->
     Res = resolve(input()),
@@ -23,9 +24,9 @@ step(Input, Postfix, _) ->
 
 hash(Bin, Inc) ->
     BinInc = integer_to_binary(Inc),
-    Hash = binary:part(crypto:hash(md5, <<Bin/binary, BinInc/binary>>), 0, 5),
+    Hash = binary:part(crypto:hash(md5, <<Bin/binary, BinInc/binary>>), 0, ?ZERRO),
     R = << <<Y>> || <<X:4>> <= Hash, Y <- integer_to_list(X, 16)>>,
-    binary:match(R, <<"00000">>, [{scope,{0, 5}}]) == {0, 5}.
+    binary:match(R, binary:copy(<<"0">>, ?ZERRO), [{scope,{0, ?ZERRO}}]) == {0, ?ZERRO}.
 
 -ifdef(TEST).
 
