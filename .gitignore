@@ -5,3 +5,4 @@ resolve
 input.txt
 output.txt
 .eunit
+*.png
