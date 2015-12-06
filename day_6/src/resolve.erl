@@ -34,23 +34,31 @@ input() ->
 resolve(Input) ->
     M = lists:foldl(fun step/2, #{}, Input),
     {ok, Out} = file:open("output.txt", [write]),
-    lists:foreach(
-      fun({A, B}) ->
-        io:fwrite(Out, "~p ~p~n", [A, B])
-      end, maps:keys(maps:filter(fun(_, V) -> V end, M))),
+    maps:fold(
+      fun({A, B}, C, _) ->
+        io:fwrite(Out, "~p ~p ~p~n", [A, B, C])
+      end, ok, M),
     file:close(Out),
     count(M).
 
-on(Key, M)     -> M#{Key => true}.
-off(Key, M)    -> M#{Key => false}.
+on(Key, M) ->
+    case maps:find(Key, M) of
+        {ok, V} -> M#{Key => V + 1};
+        error   -> M#{Key => 1}
+    end.
+off(Key, M) ->
+    case maps:find(Key, M) of
+        {ok, V} when V > 1 -> M#{Key => V - 1};
+        _ -> M#{Key => 0}
+    end.
 toggle(Key, M) ->
     case maps:find(Key, M) of
-        {ok, V} -> M#{Key => not V};
-        error   -> M#{Key => true}
+        {ok, V} -> M#{Key => V + 2};
+        error   -> M#{Key => 2}
     end.
 
 count(M) ->
-    maps:size(maps:filter(fun(_, V) -> V end, M)).
+    maps:fold(fun(_, V, Acc) -> V + Acc end, 0, M).
 
 step({_, {A,_}, _} = V, M) -> step(V, A, M).
 step({Action, Key, Key}, _, M) -> Action(Key, M);
