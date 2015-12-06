@@ -1,18 +1,15 @@
 -module(resolve).
 -export([main/1]).
 
--mode(compile).
-
--ifdef(TEST).
--include_lib("eunit/include/eunit.hrl").
--define(OUT(F,A), ?debugFmt(F ++ "\n", A)).
--else.
--define(OUT(F,A), io:format(F ++ "\n", A)).
--endif.
-
 main(_Args) ->
-    Res = resolve(input()),
-    ?OUT("Out: ~p", [Res]).
+    M = lists:foldl(fun step/2, #{}, input()),
+    {ok, Out} = file:open("output.txt", [write]),
+    maps:fold(
+      fun({A, B}, C, _) ->
+        io:fwrite(Out, "~p ~p ~p~n", [A, B, C])
+      end, ok, M),
+    file:close(Out),
+    erlang:display( maps:fold(fun(_, V, Acc) -> V + Acc end, 0, M) ).
 
 input_int(Str) ->
     [A, B] = string:tokens(Str, ","),
@@ -31,34 +28,9 @@ input() ->
       end, [ string:tokens(erlang:binary_to_list(Bin), " ") ||
                  Bin <- binary:split(Data, [<<"\n">>], [global]) ]).
 
-resolve(Input) ->
-    M = lists:foldl(fun step/2, #{}, Input),
-    {ok, Out} = file:open("output.txt", [write]),
-    maps:fold(
-      fun({A, B}, C, _) ->
-        io:fwrite(Out, "~p ~p ~p~n", [A, B, C])
-      end, ok, M),
-    file:close(Out),
-    count(M).
-
-on(Key, M) ->
-    case maps:find(Key, M) of
-        {ok, V} -> M#{Key => V + 1};
-        error   -> M#{Key => 1}
-    end.
-off(Key, M) ->
-    case maps:find(Key, M) of
-        {ok, V} when V > 1 -> M#{Key => V - 1};
-        _ -> M#{Key => 0}
-    end.
-toggle(Key, M) ->
-    case maps:find(Key, M) of
-        {ok, V} -> M#{Key => V + 2};
-        error   -> M#{Key => 2}
-    end.
-
-count(M) ->
-    maps:fold(fun(_, V, Acc) -> V + Acc end, 0, M).
+on(Key, M)     -> M#{Key => maps:get(Key, M, 0) + 1}.
+off(Key, M)    -> M#{Key => max(maps:get(Key, M, 0) - 1, 0)}.
+toggle(Key, M) -> M#{Key => maps:get(Key, M, 0) + 2}.
 
 step({_, {A,_}, _} = V, M) -> step(V, A, M).
 step({Action, Key, Key}, _, M) -> Action(Key, M);
@@ -66,16 +38,3 @@ step({Action, {A, B1} = K1, {A, _} = K2}, A1, M) ->
     step({Action, {A1, B1 + 1}, K2}, Action(K1, M));
 step({Action, {A1, B1} = K1, K2}, A, M) ->
     step({Action, {A1 + 1, B1}, K2}, A, Action(K1, M)).
-
--ifdef(TEST).
-
-step_test() ->
-    ?assertEqual(resolve([{fun on/2, {0, 0}, {2, 2}}]), 9),
-    ?assertEqual(resolve([{fun on/2, {0, 0}, {999, 999}}]), 1000000),
-    ?assertEqual(resolve([{fun toggle/2, {0, 0}, {999, 0}}]), 1000),
-    ?assertEqual(resolve([
-                          {fun on/2, {0, 0}, {999, 999}},
-                          {fun off/2, {499, 499}, {500, 500}}
-                          ]), 1000000 - 4).
-
--endif. %%TEST
