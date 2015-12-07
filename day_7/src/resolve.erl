@@ -10,8 +10,8 @@ input() ->
     {ok, Binary} = file:read_file("input.txt"),
     Data = binary:part(Binary, 0, byte_size(Binary) - 1),
     lists:foreach(
-    fun(Expr) -> put(hd(lists:reverse(Expr)), lists:droplast(Expr)) end,
-    [ string:tokens(erlang:binary_to_list(Str), "-> ") ||
+      fun(Expr) -> put(hd(lists:reverse(Expr)), lists:droplast(Expr)) end,
+      [ string:tokens(erlang:binary_to_list(Str), "-> ") ||
         Str <- binary:split(Data, [<<"\n">>], [global]) ]).
 
 value(A) ->
