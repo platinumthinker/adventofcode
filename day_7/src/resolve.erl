@@ -4,7 +4,7 @@
 -mode(compile).
 
 main(_Args) ->
-    input(), erlang:display(value("a")).
+    input(), B = value("a"), input(), put("b", B), erlang:display(value("a")).
 
 input() ->
     {ok, Binary} = file:read_file("input.txt"),
