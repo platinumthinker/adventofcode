@@ -29,8 +29,9 @@ parse([$R | Steps]) ->
 turn(Turns) -> turn(Turns, {0, 0, 0}).
 turn([], {X, Y, _}) -> {X, Y};
 turn([{Dir, Steps} | Tail], {X, Y, Z}) ->
-    {X1, Y1} = direct_turn(Steps, X, Y, Z),
-    turn(Tail, {X1, Y1, dir(Dir, Z)}).
+    Z1 = dir(Dir, Z),
+    {X1, Y1} = direct_turn(Steps, X, Y, Z1),
+    turn(Tail, {X1, Y1, Z1}).
 
 direct_turn(Steps, X, Y, 0) -> {X + Steps, Y};
 direct_turn(Steps, X, Y, 1) -> {X, Y + Steps};
