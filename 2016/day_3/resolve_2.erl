@@ -18,7 +18,8 @@ main([Args]) ->
     Opts = [global, trim_all],
     Lines = [ binary:split(L, <<" ">>, Opts) ||
               L <- binary:split(Input, <<"\n">>, Opts) ],
-    A = [ ABC || ABC <- Lines, tr(ABC) ],
+    Lines1 = tran(Lines),
+    A = [ ABC || ABC <- Lines1, tr(ABC) ],
     erlang:display(erlang:length(A)).
 
 tr([A, B, C]) ->
@@ -31,7 +32,7 @@ tr([A, B, C], Try) when A + B > C ->
     tr([B, C, A], Try + 1);
 tr(_, _) -> false.
 
-
-
-
-
+tran(L) -> tran(L, []).
+tran([], Acc) -> Acc;
+tran([[A1, B1, C1], [A2, B2, C2], [A3, B3, C3] | T], Acc) ->
+tran( T, [[A1, A2, A3], [B1, B2, B3], [C1, C2, C3] | Acc]).
