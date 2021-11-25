@@ -1,10 +1,13 @@
+#!/usr/bin/env escript
 -module(resolve).
 -export([main/1]).
 
 -mode(compile).
 
-main(_Args) ->
-	retry([3,1,1,3,3,2,2,1,1,3], 50).
+main([Num, N]) ->
+	I = [ list_to_integer([H]) || H <- Num ],
+	erlang:display(I),
+	retry(I, list_to_integer(N)).
 
 retry(L, 0) -> erlang:display(length(L));
 retry([H | T], Count) ->
